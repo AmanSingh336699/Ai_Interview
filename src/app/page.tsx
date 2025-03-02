@@ -1,3 +1,4 @@
+// import Loader from "@/components/ui/Loader";
 import Image from "next/image";
 
 export default function Home() {
