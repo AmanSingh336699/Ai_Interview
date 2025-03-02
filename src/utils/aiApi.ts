@@ -12,7 +12,6 @@ async function aiRequest(prompt: string, max_tokens: number = 300){
             prompt,
             max_tokens,
         })
-        console.log("response chat gpt: " + response)
         return response.choices[0]?.text?.trim() || "No response from OpenAI"
     } catch (_error) {
         console.error("OpenAI failed switching to Gemini:", _error)
@@ -57,7 +56,6 @@ export async function evaluteAnswer(question: string, answer: string){
     const prompt = `Evalute the answer and return only a JSON with score (0-10):
     \n\nQuestion: ${question}\nAnswer: ${answer}\n\nResponse Formate: { "score": 0-10 }`
     const response = await aiRequest(prompt, 550)
-    console.log("question: ", question, "answer: ", answer)
     try {
         return JSON.parse(response)
     } catch {
@@ -84,7 +82,6 @@ export async function generateFeedback(response: { question: string, answer: str
         ${formattedResponses}`
 
     const res = await aiRequest(prompt, 1500)
-    console.log("feedback response: ", res)
     try {
         return JSON.parse(res)
     } catch {

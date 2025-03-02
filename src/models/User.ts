@@ -34,6 +34,5 @@ userSchema.pre("save", async function(next){
 })
 
 const User = models.User || model<IUser>("User", userSchema)
-console.log("models", models)
 
 export default User;

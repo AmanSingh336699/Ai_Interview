@@ -30,8 +30,9 @@ export const authOptions: NextAuthOptions = {
                     }
 
                     return {
+                        name: user.username,
                         id: user._id as string,
-                        email: user.email
+                        email: user.email,
                     }
                 } catch (error: any) {
                     throw new Error(error.message)

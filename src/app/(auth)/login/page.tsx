@@ -131,7 +131,7 @@ export default function LoginPage() {
         </div>
 
         <motion.button
-          onClick={() => signIn("github")}
+          onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
           className="mt-4 bg-gray-800 text-white p-2 rounded-lg flex items-center justify-center gap-2 w-full"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
