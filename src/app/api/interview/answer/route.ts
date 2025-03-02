@@ -13,17 +13,13 @@ export async function POST(req: NextRequest){
         await connectDb()
         const evaluation = await evaluteAnswer(question, answer)
         const score = evaluation.score || 0
-        console.log("ai score", score)
-        await Interview.findByIdAndUpdate(interviewId, {
-            $push: {
-                response: {
-                    question,
-                    answer,
-                    score
-                }
-            }
-        }, { new: true })
-        return NextResponse.json({ message: "submitted answer" }, { status: 200 })
+        console.log(evaluteAnswer)
+        const interview = Interview.findById(interviewId)
+        if(interview){
+            interview.response.push({ question, answer, score })
+            await interview.save()
+            return NextResponse.json({ message: "answer submitted" }, { status: 200 })
+        }
     } catch (error) {
         return NextResponse.json({ error: "Server Error" }, { status: 500 })
     }
