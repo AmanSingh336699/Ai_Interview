@@ -2,6 +2,9 @@ import { OpenAI } from "openai"
 import { GoogleGenerativeAI } from "@google/generative-ai"
 
 const openai = new OpenAI({ apiKey: process.env.OPEN_AI_KEY })
+if (!process.env.GEMINI_AI_KEY) {
+    throw new Error("GEMINI_AI_KEY is not defined");
+}
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_AI_KEY)
 
 
@@ -12,8 +15,8 @@ async function aiRequest(prompt: string, max_tokens: number = 300){
             messages: [{ role: "user", content: prompt }],
             max_tokens,
         })
-        let text = response.choices[0]?.message?.content.trim()
-        text = text.replace(/```json|```/g, "").trim()
+        let text = response?.choices[0]?.message?.content?.trim()
+        text = text?.replace(/```json|```/g, "").trim()
         return text || "No response from openai."
     } catch (_error) {
         console.error("OpenAI failed switching to Gemini:", _error)

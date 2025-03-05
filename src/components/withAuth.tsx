@@ -7,7 +7,7 @@ import Loader from "./ui/Loader"
 
 export function withAuth(Component: React.ComponentType){
     return function ProtectedComponent(props: any){
-        const { data: session, status } = useSession()
+        const { status } = useSession()
         const router = useRouter()
         useEffect(() => {
             if(status === "unauthenticated"){

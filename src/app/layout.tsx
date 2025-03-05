@@ -15,7 +15,7 @@ export default function RootLayout({
     <html lang="en">
         <body>
           <SessionProvider>
-           <Header />
+           {/* <Header /> */}
             <Toaster />
             <AnimatePresence>
               {children}

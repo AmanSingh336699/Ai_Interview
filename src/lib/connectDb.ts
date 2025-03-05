@@ -21,7 +21,7 @@ export async function connectDb(): Promise<mongoose.Connection> {
     }
 
     if(!cached.promise){
-        cached.promise = mongoose.connect(MONGODB_URI, {
+        cached.promise = mongoose.connect(MONGODB_URI!, {
             bufferCommands: false,
         }).then((mongoose) => {
             console.log("mongoose connected")

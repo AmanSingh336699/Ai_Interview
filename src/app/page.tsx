@@ -20,7 +20,10 @@ export default function Home() {
       index = (index + 1) % gradients.length;
       gradientRef.current = gradients[index];
 
-      document.getElementById("bg").className = `absolute inset-0 bg-gradient-to-r ${gradientRef.current} transition-all duration-1000`;
+      const bgElement = document.getElementById("bg");
+      if (bgElement) {
+        bgElement.className = `absolute inset-0 bg-gradient-to-r ${gradientRef.current} transition-all duration-1000`;
+      }
     }, 4000);
 
     return () => clearInterval(interval);

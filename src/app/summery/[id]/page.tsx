@@ -8,10 +8,23 @@ import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { FaExclamationCircle, FaRedoAlt, FaStar, FaTrophy } from "react-icons/fa"
 
+interface Feedback {
+    strengths: string[];
+    weaknesses: string[];
+    improvements: string[];
+    comment: string;
+}
+
+interface InterviewSummary {
+    response: { score: number }[];
+    feedback: Feedback;
+}
+
 function InterviewSummary() {
     const { id } = useParams()
     const router = useRouter()
-    const [summary, setSummary] = useState(null)
+
+    const [summary, setSummary] = useState<InterviewSummary | null>(null)
 
     useEffect(() => {
         api.get(`/api/interview/summary?interviewId=${id}`)
@@ -19,7 +32,7 @@ function InterviewSummary() {
                 setSummary(res.data.interview)
                 console.log("Summary Response:", res.data.interview)
             })
-            .catch(() => setSummary({ error: "Failed to fetch summary." }))
+            .catch(() => setSummary(null))
     }, [id])
 
     return (

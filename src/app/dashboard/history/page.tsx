@@ -26,7 +26,7 @@ function InterviewHistory() {
     const [totalPages, setTotalPages] = useState(1);
     const [sortBy, setSortBy] = useState({ value: "startedAt", label: "Newest" });
     const [order, setOrder] = useState({ value: "desc", label: "Descending" });
-    const [statusFilter, setStatusFilter] = useState(null);
+    const [statusFilter, setStatusFilter] = useState<{ value: string; label: string } | null>(null);
     const { data: session } = useSession();
     const router = useRouter();
 
@@ -125,11 +125,11 @@ function InterviewHistory() {
                     {/* Filters */}
                     <div className="mb-6 flex flex-col md:flex-row md:justify-between space-y-4 md:space-y-0 md:space-x-4">
                         <Select options={[{ value: "startedAt", label: "Newest" }, { value: "score", label: "Highest Score" }]} 
-                            value={sortBy} onChange={setSortBy} className="w-full md:w-auto text-black" />
+                            value={sortBy} onChange={(newValue) => setSortBy(newValue as { value: string; label: string })} className="w-full md:w-auto text-black" />
                         <Select options={[{ value: "desc", label: "Descending" }, { value: "asc", label: "Ascending" }]} 
-                            value={order} onChange={setOrder} className="w-full md:w-auto text-black" />
+                            value={order} onChange={(newValue) => setOrder(newValue as { value: string; label: string })} className="w-full md:w-auto text-black" />
                         <Select options={[{ value: "", label: "All" }, { value: "completed", label: "Completed" }]} 
-                            value={statusFilter} onChange={setStatusFilter} className="w-full md:w-auto text-black" />
+                            value={statusFilter} onChange={(newValue) => setStatusFilter(newValue as { value: string; label: string } | null)} className="w-full md:w-auto text-black" />
                     </div>
 
                     <ul className="grid gap-6">
