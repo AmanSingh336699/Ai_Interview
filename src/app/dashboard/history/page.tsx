@@ -19,19 +19,24 @@ interface Interview {
     score: number;
 }
 
+interface SelecOption {
+    value: string;
+    label: string;
+}
+
 function InterviewHistory() {
     const [interviews, setInterviews] = useState<Interview[]>([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [sortBy, setSortBy] = useState({ value: "startedAt", label: "Newest" });
-    const [order, setOrder] = useState({ value: "desc", label: "Descending" });
-    const [statusFilter, setStatusFilter] = useState<{ value: string; label: string } | null>(null);
+    const [sortBy, setSortBy] = useState<SelecOption | null>({ value: "startedAt", label: "Newest" });
+    const [order, setOrder] = useState<SelecOption | null>({ value: "desc", label: "Descending" });
+    const [statusFilter, setStatusFilter] = useState<SelecOption | null>(null);
     const { data: session } = useSession();
     const router = useRouter();
 
-    const debouncedSortBy = useDebounce(sortBy.value, 300);
-    const debouncedOrder = useDebounce(order.value, 300);
+    const debouncedSortBy = useDebounce(sortBy?.value || "", 300);
+    const debouncedOrder = useDebounce(order?.value || "", 300);
     const debouncedStatus = useDebounce(statusFilter?.value || "", 300);
 
     const fetchInterviews = useCallback(async () => {
