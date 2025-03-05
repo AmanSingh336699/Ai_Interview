@@ -31,8 +31,7 @@ export default function LoginPage() {
     async (data: FormData) => {
       try {
         const res = await signIn("credentials", { ...data, redirect: false })
-        if (res.error) {
-          console.log("error:", res)
+        if (res && res.error) {
           return toast.error("Invalid credentials")
         }
         toast.success("Login successfully!")
