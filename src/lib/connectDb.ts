@@ -6,35 +6,34 @@ if(!MONGODB_URI){
     throw new Error("Please define the MONGODB_URI environment variable")
 }
 
-let cached = global.mongoose as { conn: mongoose.Connection | null; promise: Promise<mongoose.Connection> | null }
-
-if(!cached){
-    cached = global.mongoose = { conn: null, promise: null }
+interface MongooseCache {
+    conn: mongoose.Connection | null;
+    promise: Promise<mongoose.Connection> | null;
 }
 
-export async function connectDb(){
+const globalWithMongoose = globalThis as typeof globalThis & { mongooseCache?: MongooseCache }
+
+let cached: MongooseCache = globalWithMongoose.mongooseCache || { conn: null, promise: null }
+
+export async function connectDb(): Promise<mongoose.Connection> {
     if(cached.conn){
         return cached.conn
     }
 
     if(!cached.promise){
-        mongoose.set("strictQuery", false)
-        const opts = {
-            bufferCommands: true,
-            maxPoolSize: 10
-        }
-
-        cached.promise = mongoose.connect(MONGODB_URI as string, opts).then(() => mongoose.connection)
+        cached.promise = mongoose.connect(MONGODB_URI, {
+            bufferCommands: false,
+        }).then((mongoose) => {
+            console.log("mongoose connected")
+            return mongoose.connection
+        }).catch((err) => {
+            console.error("mongoose connection failed, retrying in 5 seconds...")
+            throw err
+        })
     }
 
-    try {
-        cached.conn = await cached.promise
-        console.log("mongoose connecting")
-    } catch (_error) {
-        cached.promise = null
-        console.error("mongoose connection failed, retrying in 5 seconds...")
-        throw _error
-    }
+    cached.conn = await cached.promise
+    globalWithMongoose.mongooseCache = cached
 
     return cached.conn
 }

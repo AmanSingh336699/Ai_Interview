@@ -9,7 +9,6 @@ export async function POST(req: NextRequest){
         await connectDb()
         const { question } = await req.json()
         const hint = await generateHint(question)
-        console.log("hint:", hint)
         return NextResponse.json({ hint }, { status: 200 })
     } catch (error) {
         return NextResponse.json({ error: "Server Error" }, { status: 500 })

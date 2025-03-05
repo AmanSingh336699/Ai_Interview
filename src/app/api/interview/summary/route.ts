@@ -16,14 +16,14 @@ export async function GET(req: NextRequest){
         if(!interview){
             return NextResponse.json({ error: "Interview not found" }, { status: 404 })
         }
-        if(interview.status === "completed"){
-            return NextResponse.json({ interview }, { status: 200 })
-        }
         const feedback = await generateFeedback(interview.response)
         console.log("ai feedback: ", feedback)
         interview.feedback = feedback
         interview.status = "completed"
         await interview.save()
+        if(interview.status === "completed"){
+            return NextResponse.json({ interview }, { status: 200 })
+        }
         return NextResponse.json({ interview }, { status: 200 })
     } catch (error) {
         return NextResponse.json({ error: "Server Error" }, { status: 500 })

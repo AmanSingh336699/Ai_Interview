@@ -7,12 +7,14 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_AI_KEY)
 
 async function aiRequest(prompt: string, max_tokens: number = 300){
     try {
-        const response = await openai.completions.create({
-            model: "gpt-3.5-turbo",
-            prompt,
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [{ role: "user", content: prompt }],
             max_tokens,
         })
-        return response.choices[0]?.text?.trim() || "No response from OpenAI"
+        let text = response.choices[0]?.message?.content.trim()
+        text = text.replace(/```json|```/g, "").trim()
+        return text || "No response from openai."
     } catch (_error) {
         console.error("OpenAI failed switching to Gemini:", _error)
         try {
@@ -44,7 +46,7 @@ export async function generateAIQuestions(role: string, experience: string, tech
     ]
     }`
 
-    const response = await aiRequest(prompt, 400)
+    const response = await aiRequest(prompt, 1000)
     try {
         return JSON.parse(response)?.questions || ["No questions generated"]
     } catch {
@@ -52,16 +54,29 @@ export async function generateAIQuestions(role: string, experience: string, tech
     }
 }
 
-export async function evaluteAnswer(question: string, answer: string){
-    const prompt = `Evalute the answer and return only a JSON with score (0-10):
-    \n\nQuestion: ${question}\nAnswer: ${answer}\n\nResponse Formate: { "score": 0-10 }`
+export async function evaluteAnswer(question: string, answer: string) {
+    const prompt = `Evaluate the answer and return only a JSON with score (0-10):
+    
+    Question: ${question}
+    Answer: ${answer}
+    
+    If the score is below 5, roast the answer in Hinglish with sarcasm and make it funny (2 lines). 
+    If the score is between 5 and 7, motivate the person in Hinglish, telling them they are on the right track (2 lines).
+    If the score is above 7, appreciate the answer with a funny twist, like you're impressed but in a cool way (2 lines).
+    
+    Always return the response in JSON format like this: 
+    { "score": 0-10, "message": "your roast/motivation/appreciation here" }`
+    
     const response = await aiRequest(prompt, 550)
     try {
-        return JSON.parse(response)
+        const evaluation = JSON.parse(response)
+        return evaluation
+
     } catch {
-        return { score: null }
+        return { score: null, message: "Something went wrong, try again!" }
     }
 }
+
 
 export async function generateFeedback(response: { question: string, answer: string; score: number }[]){
     const formattedResponses = response.map(r => `Q: ${r.question}\nA: ${r.answer}\nScore: ${r.score}\n`).join("\n");
@@ -70,7 +85,7 @@ export async function generateFeedback(response: { question: string, answer: str
     console.log("average score: ", avgScore)
     const prompt = `Analyze interview responses.
         Provide:
-        - Strengths (max 3)
+        - Strengths (max 3) if no strength roast him
         - Weaknesses (max 3)
         - Improvement tips (max 3)
         - One-line comment:
@@ -90,8 +105,12 @@ export async function generateFeedback(response: { question: string, answer: str
 }
 
 export async function generateHint(question: string){
-    const prompt = `Generate a concise yet thought-provoking hint for this interview question. The hint
-        should not directly give away the answer but should guide the candidate towards the right approach.\n\nQuestion: ${question}\n\nHint:`
+    const prompt = `Question: ${question}\n\n
+    You are an expert interviewer giving helpful hints. A candidate is stuck on the question above. 
+    Provide a single, short, and simple hint (under 30 words) to nudge the candidate in the right direction.  
+    The hint should not give away the answer directly, but rather point them towards a useful concept, function, or general approach to solve the problem.
+    Be specific to the type of question asked (e.g. algorithm, data structure, system design).
+    Hint:`
     
     const response = await aiRequest(prompt, 60)
     return response

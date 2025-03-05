@@ -2,6 +2,7 @@ import { connectDb } from "@/lib/connectDb";
 import Interview from "@/models/Interview";
 import { NextRequest, NextResponse } from "next/server";
 
+//api/question
 export async function GET(req: NextRequest){
     try {
         await connectDb()
@@ -14,7 +15,7 @@ export async function GET(req: NextRequest){
         if(!interview){
             return NextResponse.json({ error: "interview not present "}, { status: 404 })
         }
-        return NextResponse.json({ questions: interview.questions})
+        return NextResponse.json({ question: interview.questions[interview.currentIndex], currentIndex: interview.currentIndex })
     } catch (error) {
         console.error(error)
         return NextResponse.json({ error: "internal server error" }, { status: 500 })

@@ -13,7 +13,6 @@ export async function POST(req: Request){
             return NextResponse.json({ error: "Missing fields" }, { status: 400 })
         }
         const questions = await generateAIQuestions(role, experience, techStack)
-        console.log("questions", questions)
         const interview = new Interview({
             userId,
             role,
