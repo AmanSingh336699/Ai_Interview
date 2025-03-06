@@ -29,7 +29,6 @@ function Dashboard() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
         >
-            {/* Rotating Text Animation */}
             <AnimatePresence mode="wait">
                 <motion.h1
                     key={wordIndex}
@@ -43,7 +42,6 @@ function Dashboard() {
                 </motion.h1>
             </AnimatePresence>
 
-            {/* User Profile Card */}
             {user && (
                 <motion.div
                     className="w-full max-w-md bg-white/10 p-5 rounded-lg shadow-xl backdrop-blur-md flex items-center space-x-4 border border-white/20"
@@ -62,7 +60,6 @@ function Dashboard() {
                 </motion.div>
             )}
 
-            {/* Dashboard Action Buttons */}
             <motion.div
                 className="w-full max-w-md bg-white/10 p-6 mt-6 rounded-lg shadow-2xl backdrop-blur-md flex flex-col space-y-6 border border-white/20"
                 initial={{ opacity: 0, y: 10 }}

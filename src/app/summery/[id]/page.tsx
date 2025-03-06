@@ -6,7 +6,7 @@ import api from "@/lib/api"
 import { motion } from "framer-motion"
 import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { FaExclamationCircle, FaRedoAlt, FaStar, FaTrophy } from "react-icons/fa"
+import { FaExclamationCircle, FaHome, FaStar, FaTrophy } from "react-icons/fa"
 
 interface Feedback {
     strengths: string[];
@@ -140,8 +140,8 @@ function InterviewSummary() {
                         whileHover={{ scale: 1.05 }} 
                         whileTap={{ scale: 0.95 }}
                     >
-                        <FaRedoAlt className="mr-2" />
-                        Restart Interview
+                        <FaHome className="mr-2" />
+                        Dashboard
                     </motion.button>
                 </motion.div>
             ) : (

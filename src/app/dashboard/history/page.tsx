@@ -8,20 +8,15 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useSession } from "next-auth/react";
 import api from "@/lib/api";
 import { withAuth } from "@/components/withAuth";
-import Select from "react-select";
 import Skeleton from "@/components/ui/Skeleton";
 
 interface Interview {
     _id: string;
     createdAt: string;
     questions: string[];
-    completed: boolean;
+    status: string;
     score: number;
-}
-
-interface SelecOption {
-    value: string;
-    label: string;
+    response: { score: number }[];
 }
 
 function InterviewHistory() {
@@ -29,15 +24,15 @@ function InterviewHistory() {
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [sortBy, setSortBy] = useState<SelecOption | null>({ value: "startedAt", label: "Newest" });
-    const [order, setOrder] = useState<SelecOption | null>({ value: "desc", label: "Descending" });
-    const [statusFilter, setStatusFilter] = useState<SelecOption | null>(null);
+    const [sortBy, setSortBy] = useState("createdAt");
+    const [order, setOrder] = useState("desc");
+    const [statusFilter, setStatusFilter] = useState("");
     const { data: session } = useSession();
     const router = useRouter();
 
-    const debouncedSortBy = useDebounce(sortBy?.value || "", 300);
-    const debouncedOrder = useDebounce(order?.value || "", 300);
-    const debouncedStatus = useDebounce(statusFilter?.value || "", 300);
+    const debouncedSortBy = useDebounce(sortBy, 300);
+    const debouncedOrder = useDebounce(order, 300);
+    const debouncedStatus = useDebounce(statusFilter, 300);
 
     const fetchInterviews = useCallback(async () => {
         setLoading(true);
@@ -63,7 +58,7 @@ function InterviewHistory() {
 
     useEffect(() => {
         fetchInterviews();
-    }, [fetchInterviews, sortBy, order, statusFilter]);
+    }, [fetchInterviews, sortBy, order, statusFilter, page]);
 
     const deleteInterview = useCallback(async (id: string) => {
         if (!confirm("Are you sure you want to delete this interview?")) return;
@@ -76,32 +71,50 @@ function InterviewHistory() {
     }, []);
 
     return (
-        <motion.div 
-            className="p-6 max-w-4xl mx-auto text-white flex flex-col items-center justify-center min-h-screen"
-            initial={{ opacity: 0, y: -20 }} 
+        <motion.div
+            className="relative min-h-screen w-full flex flex-col items-center text-white px-4 py-6"
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
         >
+            <div className="absolute inset-0 -z-10 w-full h-full bg-gradient-to-r from-sky-500 via-indigo-600 to-purple-700"></div>
+
+            <motion.h2
+                className="text-3xl sm:text-4xl font-bold text-center mb-6"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+            >
+                📋 Interview History
+            </motion.h2>
+
+            {/* Filters */}
+            <motion.div
+                className="flex flex-wrap justify-center gap-4 mb-6 w-full max-w-2xl"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+            >
+                <select className="p-2 bg-white text-black rounded-lg" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                    <option value="createdAt">Newest</option>
+                    <option value="score">Highest Score</option>
+                </select>
+                <select className="p-2 bg-white text-black rounded-lg" value={order} onChange={(e) => setOrder(e.target.value)}>
+                    <option value="desc">Descending</option>
+                    <option value="asc">Ascending</option>
+                </select>
+                <select className="p-2 bg-white text-black rounded-lg" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                    <option value="">All</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </motion.div>
+
             {loading ? (
-                <ul className="grid gap-6">
+                <div className="grid gap-6 w-full">
                     {Array(5).fill(0).map((_, index) => (
-                        <motion.li 
-                            key={index} 
-                            className="p-5 bg-gray-800 shadow-lg rounded-xl flex flex-col md:flex-row justify-between items-center"
-                            initial={{ opacity: 0.5 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
-                        >
-                            <div className="space-y-2 w-full">
-                                <Skeleton height="24px" width="50%" />
-                                <Skeleton height="16px" width="80%" />
-                                <Skeleton height="16px" width="60%" />
-                                <Skeleton height="16px" width="40%" />
-                                <Skeleton height="16px" width="30%" />
-                            </div>
-                        </motion.li>
+                        <Skeleton key={index} height="80px" width="100%" />
                     ))}
-                </ul>
+                </div>
             ) : interviews.length === 0 ? (
                 <motion.div
                     className="flex flex-col items-center justify-center text-center space-y-6"
@@ -125,44 +138,24 @@ function InterviewHistory() {
                 </motion.div>
             ) : (
                 <>
-                    <h2 className="text-3xl font-bold text-center mb-6">📋 Interview History</h2>
-
-                    {/* Filters */}
-                    <div className="mb-6 flex flex-col md:flex-row md:justify-between space-y-4 md:space-y-0 md:space-x-4">
-                        <Select options={[{ value: "startedAt", label: "Newest" }, { value: "score", label: "Highest Score" }]} 
-                            value={sortBy} onChange={(newValue) => setSortBy(newValue as { value: string; label: string })} className="w-full md:w-auto text-black" />
-                        <Select options={[{ value: "desc", label: "Descending" }, { value: "asc", label: "Ascending" }]} 
-                            value={order} onChange={(newValue) => setOrder(newValue as { value: string; label: string })} className="w-full md:w-auto text-black" />
-                        <Select options={[{ value: "", label: "All" }, { value: "completed", label: "Completed" }]} 
-                            value={statusFilter} onChange={(newValue) => setStatusFilter(newValue as { value: string; label: string } | null)} className="w-full md:w-auto text-black" />
-                    </div>
-
-                    <ul className="grid gap-6">
+                    <ul className="grid gap-4 w-full max-w-2xl">
                         {interviews.map((interview) => (
-                            <motion.li 
+                            <motion.li
                                 key={interview._id}
-                                className="p-5 bg-gray-800 shadow-lg rounded-xl flex flex-col md:flex-row justify-between items-center transition hover:shadow-2xl"
-                                initial={{ opacity: 0, y: 20 }} 
+                                className="p-5 bg-white/20 backdrop-blur-md shadow-lg rounded-xl transition-transform hover:scale-105 hover:shadow-xl"
+                                initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.3 }}
                             >
-                                <div className="text-gray-300 space-y-2">
-                                    <p className="font-semibold text-lg">📅 Date: {new Date(interview.createdAt).toLocaleDateString()}</p>
-                                    <p>❓ Questions: {interview.questions.length}</p>
-                                    <p>🏆 Score: {interview.score}</p>
-                                    <p>Status: {interview.completed ? "✅ Completed" : "⏳ Ongoing"}</p>
-                                </div>
-                                <div className="flex space-x-3 mt-4 md:mt-0">
-                                    <button 
-                                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
-                                        onClick={() => router.push(`/summary/${interview._id}`)}
-                                    >
+                                <p className="font-semibold text-lg">📅 {new Date(interview.createdAt).toLocaleDateString()}</p>
+                                <p>❓ Questions: {interview.questions.length}</p>
+                                <p>🏆 Score: {interview.response.reduce((acc, r) => acc + r.score, 0)}</p>
+                                <p>Status: {interview.status === "completed" ? "✅ Completed" : "⏳ Ongoing"}</p>
+                                <div className="flex flex-wrap gap-3 mt-4">
+                                    <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition" onClick={() => router.push(`/summery/${interview._id}`)}>
                                         📜 View Summary
                                     </button>
-                                    <button 
-                                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
-                                        onClick={() => deleteInterview(interview._id)}
-                                    >
+                                    <button className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" onClick={() => deleteInterview(interview._id)}>
                                         <FaTrash className="mr-1" /> Delete
                                     </button>
                                 </div>
@@ -170,23 +163,17 @@ function InterviewHistory() {
                         ))}
                     </ul>
 
-                    <div className="mt-8 flex justify-between items-center">
-                        <button
-                            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                            disabled={page === 1}
-                            className="bg-gray-500 text-white px-4 py-2 rounded-lg disabled:opacity-50 hover:bg-gray-400 transition"
-                        >
-                            <FaArrowLeft className="mr-1" /> Previous
-                        </button>
-                        <span className="text-lg font-semibold">Page {page} of {totalPages}</span>
-                        <button
-                            onClick={() => setPage((prev) => (page < totalPages ? prev + 1 : prev))}
-                            disabled={page >= totalPages}
-                            className="bg-gray-500 text-white px-4 py-2 rounded-lg disabled:opacity-50 hover:bg-gray-400 transition"
-                        >
-                            Next <FaArrowRight className="ml-1" />
-                        </button>
-                    </div>
+                    {totalPages > 1 && (
+                        <div className="mt-8 flex justify-between items-center w-full max-w-sm">
+                            <button onClick={() => setPage((prev) => Math.max(1, prev - 1))} disabled={page === 1} className="bg-gray-500 px-4 py-2 rounded-lg disabled:opacity-50">
+                                <FaArrowLeft /> Previous
+                            </button>
+                            <span>Page {page} of {totalPages}</span>
+                            <button onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))} disabled={page >= totalPages} className="bg-gray-500 px-4 py-2 rounded-lg disabled:opacity-50">
+                                Next <FaArrowRight />
+                            </button>
+                        </div>
+                    )}
                 </>
             )}
         </motion.div>

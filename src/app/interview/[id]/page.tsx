@@ -30,7 +30,7 @@ function InterviewProcess() {
   const [usedHints, setUsedHints] = useState<Record<string, boolean>>({});
   const [completed, setCompleted] = useState(false);
 
-  const [funnyMessage, setFunnyMessage] = useState<string | null>("hi aman how are you ");
+  const [funnyMessage, setFunnyMessage] = useState<string | null>("");
 
   const { register, setValue, handleSubmit, formState: { errors, isSubmitting } } = useForm<AnswerFormType>({
     defaultValues: { answer: "" },
@@ -86,7 +86,6 @@ function InterviewProcess() {
             setQuestion(res?.data?.nextQuestion)
             setHint("");
             setValue("answer", "");
-            setFunnyMessage("")
             toast.success("Answer Submitted!", {
               duration: 2000,
               position: "top-center",
