@@ -13,6 +13,7 @@ import Skeleton from "@/components/ui/Skeleton";
 interface Interview {
     _id: string;
     createdAt: string;
+    role: string;
     questions: string[];
     status: string;
     score: number;
@@ -88,7 +89,6 @@ function InterviewHistory() {
                 📋 Interview History
             </motion.h2>
 
-            {/* Filters */}
             <motion.div
                 className="flex flex-wrap justify-center gap-4 mb-6 w-full max-w-2xl"
                 initial={{ opacity: 0, y: -10 }}
@@ -148,6 +148,7 @@ function InterviewHistory() {
                                 transition={{ duration: 0.3 }}
                             >
                                 <p className="font-semibold text-lg">📅 {new Date(interview.createdAt).toLocaleDateString()}</p>
+                                <p>Role: {interview.role}</p>
                                 <p>❓ Questions: {interview.questions.length}</p>
                                 <p>🏆 Score: {interview.response.reduce((acc, r) => acc + r.score, 0)}</p>
                                 <p>Status: {interview.status === "completed" ? "✅ Completed" : "⏳ Ongoing"}</p>
