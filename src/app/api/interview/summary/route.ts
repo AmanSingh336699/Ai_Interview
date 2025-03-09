@@ -16,7 +16,7 @@ export async function GET(req: NextRequest){
         if(!interview){
             return NextResponse.json({ error: "Interview not found" }, { status: 404 })
         }
-        if(interview.status === "completed"){
+        if(Object.keys(interview.feedback).length){
             return NextResponse.json({ interview }, { status: 200 })
         }
         const feedback = await generateFeedback(interview.response)
