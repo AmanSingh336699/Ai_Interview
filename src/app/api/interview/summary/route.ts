@@ -21,7 +21,6 @@ export async function GET(req: NextRequest){
         }
         const feedback = await generateFeedback(interview.response)
         interview.feedback = feedback
-        interview.status = "completed"
         await interview.save()
         return NextResponse.json({ interview }, { status: 200 })
     } catch (error) {
