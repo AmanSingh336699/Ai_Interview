@@ -30,7 +30,6 @@ function InterviewSummary() {
         api.get(`/api/interview/summary?interviewId=${id}`)
             .then((res) => {
                 setSummary(res.data.interview)
-                console.log("Summary Response:", res.data.interview)
             })
             .catch(() => setSummary(null))
     }, [id])

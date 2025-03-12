@@ -26,13 +26,11 @@ const interviewSchema = new Schema<IInterview>({
         { question: { type: String, required: true }, answer: { type: String, required: true }, score: Number, message: String, _id: false }
     ],
     feedback: {
-        type: {
-            strengths: { type: [String], default: [] },
-            weaknesses: { type: [String], default: [] },
-            improvements: { type: [String], default: [] },
-            comment: { type: String, default: "" }
-        },
-        default: {}
+        strengths: [String],
+        weaknesses: [String],
+        improvements: [String],
+        comment: String,
+        _id: false,
     },
 }, { timestamps: true })
 

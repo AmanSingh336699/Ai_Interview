@@ -61,6 +61,12 @@ function InterviewHistory() {
         fetchInterviews();
     }, [fetchInterviews, sortBy, order, statusFilter, page]);
 
+    useEffect(() => {
+        if(page > totalPages){
+            setPage(totalPages)
+        }
+    }, [totalPages])
+
     const deleteInterview = useCallback(async (id: string) => {
         if (!confirm("Are you sure you want to delete this interview?")) return;
         try {
@@ -106,12 +112,13 @@ function InterviewHistory() {
                 <select className="p-2 bg-white text-black rounded-lg" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                     <option value="">All</option>
                     <option value="completed">Completed</option>
+                    <option value="ongoing">Ongoing</option>
                 </select>
             </motion.div>
 
             {loading ? (
                 <div className="grid gap-6 w-full">
-                    {Array(5).fill(0).map((_, index) => (
+                    {Array(4).fill(0).map((_, index) => (
                         <Skeleton key={index} height="80px" width="100%" />
                     ))}
                 </div>
@@ -151,7 +158,7 @@ function InterviewHistory() {
                                 <p>Role: {interview.role}</p>
                                 <p>❓ Questions: {interview.questions.length}</p>
                                 <p>🏆 Score: {interview.response.reduce((acc, r) => acc + r.score, 0)}</p>
-                                <p>Status: {interview.status === "completed" ? "✅ Completed" : "⏳ Ongoing"}</p>
+                                <p>Status: {interview.status === "completed" ? "✅ Completed" : <button className="text-rose-300 underline hover:text-rose-500" onClick={() => router.push(`/interview/${interview._id}`)}>⏳ Ongoing</button>}</p>
                                 <div className="flex flex-wrap gap-3 mt-4">
                                     <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition" onClick={() => router.push(`/summery/${interview._id}`)}>
                                         📜 View Summary

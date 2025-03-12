@@ -85,7 +85,6 @@ export async function generateFeedback(response: { question: string, answer: str
     const formattedResponses = response.map(r => `Q: ${r.question}\nA: ${r.answer}\nScore: ${r.score}\n`).join("\n");
     console.log("feedback responses: ", formattedResponses)
     const avgScore = response.reduce((sum, r) => sum + r.score, 0) / response.length
-    console.log("average score: ", avgScore)
     const prompt = `Analyze interview responses.
         Provide:
         - Strengths (max 3) if no strength roast him
