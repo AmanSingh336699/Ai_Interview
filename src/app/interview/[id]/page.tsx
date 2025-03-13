@@ -117,6 +117,8 @@ function InterviewProcess() {
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
+      const activeElement = document.activeElement as HTMLElement
+      if(activeElement.tagName === "TEXTAREA") return
       if(event.key === "Enter")
         handleSubmit(submitAnswer)()
       if(event.key === " ")
