@@ -13,6 +13,8 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { FaCheckCircle, FaLightbulb, FaPaperPlane, FaQuestionCircle } from "react-icons/fa";
 import { z } from "zod";
+import WordSkeleton from "@/components/ui/WordSkeleton";
+import KeyboardShortcut from "@/components/KeyBoardShortcut";
 
 const answerSchema = z.object({
   answer: z.string().min(5, "Answer must be at least 5 characters"),
@@ -23,13 +25,14 @@ type AnswerFormType = z.infer<typeof answerSchema>;
 function InterviewProcess() {
   const { id } = useParams();
   const router = useRouter();
+  const [hintLoading, setHintLoading] = useState(false)
+  const [questionLoading, setQuestionLoading] = useState(false)
   const [question, setQuestion] = useState<string>("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hint, setHint] = useState("");
   const [totalHints, setTotalHints] = useState(3);
   const [usedHints, setUsedHints] = useState<Record<string, boolean>>({});
   const [completed, setCompleted] = useState(false);
-
   const [funnyMessage, setFunnyMessage] = useState<string | null>("");
 
   const { register, setValue, handleSubmit, formState: { errors, isSubmitting } } = useForm<AnswerFormType>({
@@ -41,12 +44,15 @@ function InterviewProcess() {
     if (!id) return;
 
     const fetchQuestions = async () => {
+      setQuestionLoading(true)
       try {
         const res = await api.get(`/api/interview/question?interviewId=${id}`);
         setQuestion(res.data.question);
         setCurrentIndex(res.data.currentIndex)
       } catch (error) {
         console.log("error", error);
+      } finally {
+        setQuestionLoading(false)
       }
     };
     fetchQuestions();
@@ -54,6 +60,7 @@ function InterviewProcess() {
 
   const requestHint = useCallback(async () => {
     if (totalHints === 0 || usedHints[question]) return;
+    setHintLoading(true)
     try {
       const res = await api.post("/api/interview/hint", { question });
       if (res.data.hint) {
@@ -73,6 +80,8 @@ function InterviewProcess() {
       }
     } catch (error) {
       toast.error("Failed to get hint");
+    } finally {
+      setHintLoading(false)
     }
   }, [id, question, totalHints, usedHints]);
 
@@ -106,11 +115,26 @@ function InterviewProcess() {
     }
   }, [id, question, router, currentIndex]);
 
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if(event.key === "Enter")
+        handleSubmit(submitAnswer)()
+      if(event.key === " ")
+        requestHint()
+      if(event.key === "Escape")
+        setValue("answer", "")
+    }
+
+    document.addEventListener("keydown", handleKeyPress);
+    return () => 
+      document.removeEventListener("keydown", handleKeyPress);
+    
+  }, [submitAnswer, requestHint, setValue])
+
   const handleFunnyClose = useCallback(() => {
     setFunnyMessage("")
   }, [])
-
-  const canRequestHint = useMemo(() => totalHints > 0 && !usedHints[question], [totalHints, usedHints, question]);
+  
 
   return (
     <motion.div
@@ -141,19 +165,22 @@ function InterviewProcess() {
         </motion.p>
       ) : (
         <>
-          <motion.p
-            className="text-base sm:text-lg mt-4 bg-white/10 px-4 sm:px-6 py-3 sm:py-4 rounded-lg shadow-md flex items-center"
-            initial={{ y: 10, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <FaQuestionCircle className="mr-2 text-sky-400" /> {question}
-          </motion.p>
+          {questionLoading ? (
+            <WordSkeleton height="60px" width="80%" className="mb-4" />
+          ) : (
+            <motion.p
+              className="text-base sm:text-lg mt-4 bg-white/10 px-4 sm:px-6 py-3 sm:py-4 rounded-lg shadow-md flex items-center"
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut"}}
+            >
+              <FaQuestionCircle className="mr-2 text-sky-400" /> {question}
+            </motion.p>
+          )}
           <motion.p className="mt-2 text-sm sm:text-base text-gray-200">
             {currentIndex + 1} of 10 questions
           </motion.p>
 
-          {canRequestHint && (
+          {totalHints > 0 && !usedHints[question] && (
             <motion.button
               onClick={requestHint}
               className="mt-4 px-4 sm:px-6 sm:py-3 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-400 transition-all duration-200 text-white shadow-lg flex items-center"
@@ -164,21 +191,26 @@ function InterviewProcess() {
               Ask Hint({totalHints} left)
             </motion.button>
           )}
-          {hint && (
-            <motion.p
-              className="mt-4 text-yellow-300 bg-black/30 px-4 py-2 rounded-lg flex items-center"
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-            >
-              <FaLightbulb className="mr-2 text-yellow-300" />
-              {hint}
-            </motion.p>
+          {hintLoading ? (
+            <WordSkeleton height="40px" width="60%" className="mt-4" />
+          ) : (
+            hint && (
+                <motion.p
+                  className="mt-4 text-yellow-300 bg-black/30 px-4 py-2 rounded-lg flex items-center"
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <FaLightbulb className="mr-2 text-yellow-300" />
+                  {hint}
+                </motion.p>
+              )
           )}
             {funnyMessage && <Funny message={`${funnyMessage}`} onClose={handleFunnyClose}/>}
 
           <form onSubmit={handleSubmit(submitAnswer)} className="mt-6 w-full max-w-md sm:max-w-lg">
             <TextareaField label="Your Answer" register={register("answer")} error={errors.answer?.message} />
+            <KeyboardShortcut />
             <motion.button
               type="submit"
               className="mt-4 bg-emerald-600 px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-white hover:bg-emerald-400 transition-all duration-200 shadow-lg w-full flex items-center justify-center"

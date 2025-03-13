@@ -30,6 +30,7 @@ const interviewSchema = new Schema<IInterview>({
         weaknesses: [String],
         improvements: [String],
         comment: String,
+        selectionChance: String,
         _id: false,
     },
 }, { timestamps: true })

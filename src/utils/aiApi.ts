@@ -81,28 +81,46 @@ export async function evaluteAnswer(question: string, answer: string) {
 }
 
 
-export async function generateFeedback(response: { question: string, answer: string; score: number }[]){
-    const formattedResponses = response.map(r => `Q: ${r.question}\nA: ${r.answer}\nScore: ${r.score}\n`).join("\n");
-    console.log("feedback responses: ", formattedResponses)
-    const avgScore = response.reduce((sum, r) => sum + r.score, 0) / response.length
-    const prompt = `Analyze interview responses.
-        Provide:
-        - Strengths (max 3) if no strength roast him
-        - Weaknesses (max 3)
-        - Improvement tips (max 3)
-        - One-line comment:
-            - If ${avgScore} < 5 then Highly sarcastic
-            - If ${avgScore} > 5 then Motivational
-        Return JSON: 
-        { "strengths": ["list"], "weaknesses": ["list"], "improvements": ["list"], "comment": "one-liner-sarcastic" }
-        Responses:
-        ${formattedResponses}`
+export async function generateFeedback(response: { question: string, answer: string; score: number }[]) {
+    const formattedResponses = response
+        .map(r => `Q: ${r.question}\nA: ${r.answer}\nScore: ${r.score}\n`)
+        .join("\n");
 
-    const res = await aiRequest(prompt, 1500)
+    console.log("feedback responses: ", formattedResponses);
+
+    const avgScore = response.reduce((sum, r) => sum + r.score, 0) / response.length;
+
+    const prompt = `Analyze the interview responses and provide structured feedback.
+    
+    - Strengths (max 3) (if no strength, then roast him).
+    - Weaknesses (max 3).
+    - Improvement tips (max 3).
+    - One-line comment based on avg score:
+        - If ${avgScore} < 5, then make it **highly sarcastic**.
+        - If ${avgScore} > 5, then make it **motivational**.
+    - **Chances of selection in interview (0-100%)**:
+        - If ${avgScore} > 8: High (80-100%)
+        - If ${avgScore} > 5: Medium (50-80%)
+        - If ${avgScore} ≤ 5: Low (0-50%)
+    
+    **Return JSON:**
+    {
+      "strengths": ["list"],
+      "weaknesses": ["list"],
+      "improvements": ["list"],
+      "comment": "one-liner-sarcastic-or-motivational",
+      "selectionChance": "percentage (e.g., 75%)"
+    }
+    
+    Responses:
+    ${formattedResponses}`;
+
+    const res = await aiRequest(prompt, 1500);
+
     try {
-        return JSON.parse(res)
+        return JSON.parse(res);
     } catch {
-        return { strengths: [], weaknesses: [], improvements: [], comment: res }
+        return { strengths: [], weaknesses: [], improvements: [], comment: res, selectionChance: "N/A" };
     }
 }
 
