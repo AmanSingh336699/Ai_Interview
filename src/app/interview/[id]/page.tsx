@@ -89,24 +89,27 @@ function InterviewProcess() {
     try {
       const res = await api.post("/api/interview/answer", { interviewId: id, question, answer: data.answer });
       console.log("resData: " + res.data)
-      setFunnyMessage(res?.data?.comment)
-        if (res.data.status === "ongoing") {
-            setCurrentIndex(res?.data.nextIndex);
-            setQuestion(res?.data?.nextQuestion)
-            setHint("");
-            setValue("answer", "");
+      if(res.data.comment){
+        setFunnyMessage(res?.data?.comment)
+      } else {
+        setCurrentIndex(res.data.nextIndex)
+        setQuestion(res.data.nextQuestion)
+        setHint("");
+        setValue("answer", "");
+      }
+        if (res.data.status === "completed") {
+          setCompleted(true)
+          router.push(`/summery/${id}`);
+          toast.success("Interview Completed!", {
+            duration: 3000,
+            position: "top-center",
+            icon: <FaCheckCircle className="h-6 w-6 text-emerald-500" />,
+          });
+          } else {
             toast.success("Answer Submitted!", {
               duration: 2000,
               position: "top-center",
               icon: <FaPaperPlane className="h-6 w-6 text-sky-500" />,
-            });
-          } else {
-            setCompleted(true);
-            router.push(`/summery/${id}`);
-            toast.success("Interview Completed!", {
-              duration: 3000,
-              position: "top-center",
-              icon: <FaCheckCircle className="h-6 w-6 text-emerald-500" />,
             });
           }
     } catch (error) {
@@ -133,9 +136,18 @@ function InterviewProcess() {
     
   }, [submitAnswer, requestHint, setValue])
 
-  const handleFunnyClose = useCallback(() => {
+  const handleFunnyClose = useCallback(async () => {
     setFunnyMessage("")
-  }, [])
+    try {
+      const res = await api.get(`/api/interview/question?interviewId=${id}`)
+      setCurrentIndex(res.data.currentIndex)
+      setQuestion(res.data.question)
+      setHint("")
+      setValue("answer", "")
+    } catch (error) {
+      toast.error("Failed to fetch next question")
+    }
+  }, [id])
   
 
   return (

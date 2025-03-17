@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request){
     try {
         await connectDb()
-        const { userId, role, experience, techStack } = await req.json();
+        const { userId, role, experience, techStack, aiComments } = await req.json();
         if(!userId || !role || !experience || !techStack){
             console.log("fields are missing")
             return NextResponse.json({ error: "Missing fields" }, { status: 400 })
@@ -17,6 +17,7 @@ export async function POST(req: Request){
             userId,
             role,
             experience,
+            IsAiComment: aiComments,
             techStack,
             questions,
             currentIndex: 0,

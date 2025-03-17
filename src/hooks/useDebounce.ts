@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { clearInterval } from "timers";
 
 
 export function useDebounce<T>(value: T, delay: number): T {

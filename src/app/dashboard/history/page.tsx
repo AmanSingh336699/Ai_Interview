@@ -25,13 +25,11 @@ function InterviewHistory() {
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [sortBy, setSortBy] = useState("createdAt");
     const [order, setOrder] = useState("desc");
     const [statusFilter, setStatusFilter] = useState("");
     const { data: session } = useSession();
     const router = useRouter();
 
-    const debouncedSortBy = useDebounce(sortBy, 300);
     const debouncedOrder = useDebounce(order, 300);
     const debouncedStatus = useDebounce(statusFilter, 300);
 
@@ -42,7 +40,6 @@ function InterviewHistory() {
                 params: {
                     userId: session?.user?.id,
                     page,
-                    sortBy: debouncedSortBy,
                     order: debouncedOrder,
                     status: debouncedStatus,
                 },
@@ -55,11 +52,11 @@ function InterviewHistory() {
         } finally {
             setLoading(false);
         }
-    }, [session?.user?.id, page, debouncedSortBy, debouncedOrder, debouncedStatus]);
+    }, [session?.user?.id, page, debouncedOrder, debouncedStatus]);
 
     useEffect(() => {
         fetchInterviews();
-    }, [fetchInterviews, sortBy, order, statusFilter, page]);
+    }, [fetchInterviews, order, statusFilter, page]);
 
     useEffect(() => {
         if(page > totalPages){
@@ -101,13 +98,9 @@ function InterviewHistory() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
             >
-                <select className="p-2 bg-white text-black rounded-lg" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                    <option value="createdAt">Newest</option>
-                    <option value="score">Highest Score</option>
-                </select>
                 <select className="p-2 bg-white text-black rounded-lg" value={order} onChange={(e) => setOrder(e.target.value)}>
-                    <option value="desc">Descending</option>
-                    <option value="asc">Ascending</option>
+                    <option value="desc">Newest</option>
+                    <option value="asc">Oldest</option>
                 </select>
                 <select className="p-2 bg-white text-black rounded-lg" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                     <option value="">All</option>
@@ -145,7 +138,7 @@ function InterviewHistory() {
                 </motion.div>
             ) : (
                 <>
-                    <ul className="grid gap-4 w-full max-w-2xl">
+                    <ul className="grid gap-4 w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-2xl">
                         {interviews.map((interview) => (
                             <motion.li
                                 key={interview._id}
@@ -160,9 +153,9 @@ function InterviewHistory() {
                                 <p>🏆 Score: {interview.response.reduce((acc, r) => acc + r.score, 0)}</p>
                                 <p>Status: {interview.status === "completed" ? "✅ Completed" : <button className="text-rose-300 underline hover:text-rose-500" onClick={() => router.push(`/interview/${interview._id}`)}>⏳ Ongoing</button>}</p>
                                 <div className="flex flex-wrap gap-3 mt-4">
-                                    <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition" onClick={() => router.push(`/summery/${interview._id}`)}>
+                                    {interview.status === "completed" && <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition" onClick={() => router.push(`/summery/${interview._id}`)}>
                                         📜 View Summary
-                                    </button>
+                                    </button>}
                                     <button className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition" onClick={() => deleteInterview(interview._id)}>
                                         <FaTrash className="mr-1" /> Delete
                                     </button>

@@ -1,13 +1,16 @@
 import { motion, AnimatePresence } from "framer-motion";
-import React from "react";
-import { v4 as uuidv4 } from "uuid"
+import React, { useMemo } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 interface FunnyProps {
   message?: string;
   onClose: () => void;
+  show?: boolean
 }
 
-const Funny: React.FC<FunnyProps> = ({ message, onClose }) => {
+const Funny: React.FC<FunnyProps> = ({ message, onClose, show = true }) => {
+  if(!show) return null
+
   return (
     <AnimatePresence>
       <motion.div
@@ -16,17 +19,17 @@ const Funny: React.FC<FunnyProps> = ({ message, onClose }) => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
-        onClick={onClose} 
+        onClick={onClose}
       />
 
       <motion.div
         className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                   z-50 bg-gradient-to-br from-gray-900 to-gray-800 text-white 
-                   text-sm sm:text-lg md:text-xl px-6 py-6 rounded-2xl shadow-2xl 
-                   border border-gray-700 max-w-[90%] sm:max-w-md text-center 
-                   ring-2 ring-blue-500/50 hover:ring-blue-500 transition-all duration-300"
+                   z-50 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 
+                   text-white text-sm sm:text-lg md:text-xl px-6 py-6 rounded-2xl shadow-2xl 
+                   border border-white/30 max-w-[90%] sm:max-w-md text-center 
+                   ring-2 ring-white/50 hover:ring-yellow-400 transition-all duration-300"
         initial={{ opacity: 0, scale: 0.8, y: -30 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
+        animate={{ opacity: 1, scale: 1, rotate: 2, x: "-50%", y: "-50%" }}
         exit={{ opacity: 0, scale: 0.8, y: -20 }}
         transition={{ duration: 0.4, ease: "easeOut", type: "spring", stiffness: 120 }}
       >
@@ -46,7 +49,9 @@ const Funny: React.FC<FunnyProps> = ({ message, onClose }) => {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           {message?.split("\n").map((line) => (
-            <p key={uuidv4()} className="whitespace-pre-line">{line}</p>
+            <p key={uuidv4()} className="whitespace-pre-line text-white/90 text-xl sm:text-2xl">
+              🎉 {line} 🎉
+            </p>
           ))}
         </motion.div>
       </motion.div>

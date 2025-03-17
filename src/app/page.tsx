@@ -1,11 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useEffect, useRef } from "react";
 
 export default function Home() {
-  const router = useRouter();
   const gradientRef = useRef("from-sky-600 to-purple-600");
 
   useEffect(() => {
@@ -80,18 +79,20 @@ export default function Home() {
           your answers effortlessly.
         </motion.p>
 
-        <motion.button
-          whileHover={{
-            scale: 1.1,
-            boxShadow: "0px 10px 25px rgba(255,215,0,0.6)",
-            y: -3,
-          }}
-          whileTap={{ scale: 0.9, y: 2 }}
-          onClick={() => router.push("/login")}
-          className="bg-amber-400 text-black px-6 py-3 rounded-lg font-bold text-lg shadow-lg transition duration-300 hover:bg-yellow-500"
-        >
-          Start Now →
-        </motion.button>
+        <Link href="/login">
+            <motion.button
+              whileHover={{
+                scale: 1.1,
+                background: "linear-gradient(90deg, #FFD700, #FFA500)",
+                boxShadow: "0px 10px 30px rgba(255, 165, 0, 0.8)",
+                y: -3,
+              }}
+              whileTap={{ scale: 0.9, y: 2 }}
+              className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-8 py-3 rounded-lg font-bold text-lg shadow-lg transition duration-300"
+            >
+              🚀 Start Now →
+            </motion.button>
+        </Link>
       </div>
     </div>
   );

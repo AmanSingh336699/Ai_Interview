@@ -23,7 +23,6 @@ function Dashboard() {
     const fetchDashboardData = useCallback(async () => {
         try {
             const { data } = await api.get("/api/user-dashboard")
-            console.log(data)
             setDashboardData(data)
             setStatus("success")
         } catch { 

@@ -8,6 +8,7 @@ export interface IInterview extends Document {
     questions: string[];
     status: "ongoing" | "completed";
     currentIndex: number;
+    IsAiComment: boolean
     response?: { question: string; answer: string; score: number, message: string }[];
     feedback?: { strengths: string[]; weaknesses: string[]; improvements: string[]; comment: string };
 }
@@ -18,6 +19,7 @@ const interviewSchema = new Schema<IInterview>({
     experience: { type: String, required: true },
     techStack: { type: String, required: true },
     currentIndex: { type: Number, default: 0 },
+    IsAiComment: { type: Boolean, default: false },
     questions: [
         { type: String, required: true } 
     ],

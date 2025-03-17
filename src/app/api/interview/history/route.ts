@@ -14,37 +14,22 @@ export async function GET(req: Request) {
         }
 
         const userId = session.user.id;
-
         const url = new URL(req.url);
         let page = parseInt(url.searchParams.get("page") || "1");
-        let limit = parseInt(url.searchParams.get("limit") || "10");
-        let sortBy = url.searchParams.get("sortBy") || "createdAt";
+        let limit = 10;
         let order = url.searchParams.get("order") || "desc";
         let status = url.searchParams.get("status");
-        let role = url.searchParams.get("role");
-        let techStack = url.searchParams.get("techStack");
-        let search = url.searchParams.get("search");
 
         page = Math.max(1, page);
-        limit = Math.max(1, limit);
         const skip = (page - 1) * limit;
         const orderValue = order === "asc" ? 1 : -1;
 
         let filter: any = { userId };
 
-        if (status) filter.status = status;
-        if (role) filter.role = new RegExp(role, "i");
-        if (techStack) filter.techStack = new RegExp(techStack, "i");
-        if (search) {
-            filter.$or = [
-                { role: new RegExp(search, "i") },
-                { experience: new RegExp(search, "i") },
-                { techStack: new RegExp(search, "i") },
-            ];
-        }
+        if (status) filter.status = status; 
 
         const interviews = await Interview.find(filter)
-            .sort({ [sortBy]: orderValue })
+            .sort({ createdAt: orderValue }) 
             .skip(skip)
             .limit(limit)
             .lean();
