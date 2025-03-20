@@ -24,7 +24,6 @@ export async function connectDb(): Promise<mongoose.Connection> {
         cached.promise = mongoose.connect(MONGODB_URI!, {
             bufferCommands: false,
         }).then((mongoose) => {
-            console.log("mongoose connected")
             return mongoose.connection
         }).catch((err) => {
             console.error("mongoose connection failed, retrying in 5 seconds...")

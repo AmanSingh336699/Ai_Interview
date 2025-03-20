@@ -13,7 +13,6 @@ export async function GET(){
 
     try {
         const userId = session.user.id
-        console.log("userid", userId)
         const totalInterviews = await Interview.countDocuments({ userId })
         const highesScoreInterview = await Interview.aggregate([
             { $match: { userId } },
