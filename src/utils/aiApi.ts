@@ -135,3 +135,74 @@ export async function generateHint(question: string){
     const response = await aiRequest(prompt, 60)
     return response
 }
+
+export async function generateBattle(topic: string, difficulty: string){
+    const prompt = `You are an AI interview simulator. Generate **5 technical interview questions** on topin ${topic} with ${difficulty} difficulty.  
+    Guidelines:
+    - Ensure questions **match candidate's experience level**.
+    - No duplicate, irrelevant, or overly simple questions.
+    - Questions should cover **theoretical + practical + scenario-based** topics.
+    - Return questions in **JSON format**:
+    {
+    "questions": [
+        "Question 1",
+        "Question 2",
+        "...",
+        "Question 5"
+    ]
+    }`
+
+    const response = await aiRequest(prompt, 1000)
+    try {
+        return JSON.parse(response)?.questions || ["No questions generated"]
+    } catch {
+        return response.split("\n")
+    }
+}
+
+interface Answer{
+    userId: string;
+    question: string;
+    answer: string;
+}
+
+export async function generateRanking(answers: Answer[]) {
+    const prompt = `
+        You are an expert evaluator with deep knowledge in assessing answer quality. Your task is to rank the following answers based on **correctness, clarity, depth, and relevance**.
+
+        ### **Evaluation Criteria:** 1. **Correctness**: Is the answer factually accurate? 
+        2. **Clarity**: Is the answer well-structured and easy to understand? 
+        3. **Depth**: Does the answer provide sufficient explanation with reasoning? 
+        4. **Relevance**: Does the answer directly address the question without unnecessary details? 
+
+        ### **Ranking Rules:** - **One user per question**: Only one user can be ranked for each question. 
+        - **A user can appear multiple times** if they have given the best answers for different questions. 
+        - **Top answer per question**: Select the best user for each question. 
+        - **Max 3 ranked results**: Return up to **3 best answers from different questions**. 
+        - **Sort by ranking order**: Best-ranked answer should be first in the list. 
+
+        ### **Response Format:** \`\`\`json
+        [
+            { "userId": "bestUser1", "question": "Question 1", "answer": "Best Answer 1" },
+            { "userId": "bestUser2", "question": "Question 2", "answer": "Best Answer 2" },
+            { "userId": "bestUser3", "question": "Question 3", "answer": "Best Answer 3" }
+        ]
+        \`\`\`
+
+        **IMPORTANT: Provide ONLY the JSON output as shown in the Response Format above. Do not include any additional text, explanations, or comments. Ensure the response is valid JSON.**
+
+        ### **Answers to Rank:**
+        ${answers
+            .map((a) => `User: ${a.userId}, Q: ${a.question}, A: ${a.answer}`)
+            .join("\n")}
+    `;
+
+    try {
+        const response = await aiRequest(prompt, 4000);
+        console.log("AI response: " + response);
+        return JSON.parse(response)?.slice(0, 3) || [];
+    } catch (error) {
+        console.error("AI Ranking Error:", error);
+        return [];
+    }
+}

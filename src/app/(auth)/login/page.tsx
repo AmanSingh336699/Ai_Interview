@@ -35,7 +35,7 @@ export default function LoginPage() {
           return toast.error("Invalid credentials")
         }
         toast.success("Login successfully!")
-        setTimeout(() => router.push("/dashboard"), 1500)
+        setTimeout(() => router.push("/dashboard"), 1000)
       } catch (_error) {
         console.log(_error)
         toast.error("Login failed")

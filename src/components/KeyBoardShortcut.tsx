@@ -13,12 +13,12 @@ const KeyboardShortcut = () => {
     >
       <div className="flex items-center">
         <FaKeyboard className="text-yellow-400 mr-2" />
-        <span>Press <strong>Space</strong> to Get a Hint</span>
+        <span>Press <strong>Ctrl + H</strong> to Get a Hint</span>
       </div>
       <FaArrowRight className="hidden sm:block text-gray-400" />
       <div className="flex items-center">
         <FaKeyboard className="text-green-400 mr-2" />
-        <span>Press <strong>Enter</strong> to Submit</span>
+        <span>Press <strong>Ctrl + Enter</strong> to Submit</span>
       </div>
     </motion.div>
   );

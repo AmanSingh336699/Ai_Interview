@@ -15,6 +15,7 @@ interface Interview {
     createdAt: string;
     role: string;
     questions: string[];
+    currentIndex: number;
     status: string;
     score: number;
     response: { score: number }[];
@@ -81,9 +82,8 @@ function InterviewHistory() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
         >
-            {/* Background */}
             <div className="absolute inset-0 -z-10 w-full h-full bg-gradient-to-r from-teal-600 via-blue-700 to-purple-800"></div>
-            <div className="absolute inset-0 -z-10 w-full h-full bg-black/30"></div> {/* Subtle overlay */}
+            <div className="absolute inset-0 -z-10 w-full h-full bg-black/30"></div>
 
             <motion.h2
                 className="text-3xl sm:text-4xl font-bold text-center mb-6 drop-shadow-lg"
@@ -180,7 +180,7 @@ function InterviewHistory() {
                                     <FaMedal className="text-amber-300" /> Role: {interview.role}
                                 </p>
                                 <p className="drop-shadow-md flex items-center gap-2">
-                                    <FaQuestion className="text-fuchsia-400" /> Questions: {interview.questions.length}
+                                    <FaQuestion className="text-fuchsia-400" /> {interview.status === "completed" ? `Questions: ${interview.questions.length}` : `Current Question: ${interview.currentIndex + 1}`}
                                 </p>
                                 <p className="drop-shadow-md flex items-center gap-2">
                                     <FaTrophy className="text-yellow-400" /> Score: {interview.response.reduce((acc, r) => acc + r.score, 0)}

@@ -154,13 +154,20 @@ function InterviewProcess() {
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLTextAreaElement) return;
-      event.preventDefault();
-      if (event.key === "Enter") handleSubmit(submitAnswer)();
-      if (event.key === " ") requestHint();
-      if (event.key === "Escape") setValue("answer", "");
-    };
-    document.addEventListener("keydown", handleKeyPress);
+      if (event.ctrlKey && event.key === "h") {
+        event.preventDefault();
+        requestHint();
+      }  
+      if (event.ctrlKey && event.key === "Enter") {
+        event.preventDefault();
+        handleSubmit(submitAnswer)();
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setValue("answer", "");
+      }
+    }
+    document.addEventListener("keydown", handleKeyPress);  
     return () => document.removeEventListener("keydown", handleKeyPress);
   }, [handleSubmit, submitAnswer, requestHint, setValue]);
 
@@ -219,8 +226,6 @@ function InterviewProcess() {
             transition={{ duration: 0.5 }}
           >
             {state.isQuestionLoading ? (
-              <p className="text-base sm:text-lg text-gray-200 text-center animate-pulse">Loading interview...</p>
-            ) : state.isQuestionLoading ? (
               <WordSkeleton height="60px" width="100%" className="rounded-lg" />
             ) : (
               <motion.div

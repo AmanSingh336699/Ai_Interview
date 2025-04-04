@@ -17,7 +17,8 @@ export async function POST(req: Request){
         const user = await User.create({
             username,
             email,
-            password
+            password,
+            provider: 'credentials'
         })
     
         return NextResponse.json({ message: "User registered", user }, { status: 201 })

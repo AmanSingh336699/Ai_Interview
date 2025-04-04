@@ -1,12 +1,20 @@
 import type { NextConfig } from "next";
-import { config } from "process";
 
 const nextConfig: NextConfig = {
   webpack: (config) => {
-    config.resolve.fallback = { fs: false }
+    config.resolve.fallback = { fs: false };
     return config;
-  }
-  /* config options here */
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
+      },
+    ],
+  },
+  /* additional config options here */
 };
 
 export default nextConfig;
