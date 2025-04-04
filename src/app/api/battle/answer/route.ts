@@ -1,6 +1,6 @@
 // api/battle/answer.ts (POST)
 import { NextRequest, NextResponse } from "next/server";
-import Battle, { IBattle } from "@/models/Battle";
+import Battle from "@/models/Battle";
 import Answer from "@/models/Answer";
 import { connectDb } from "@/lib/connectDb";
 import { evaluteAnswer, generateRanking } from "@/utils/aiApi";

@@ -55,9 +55,11 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           username: user.name || profile?.login,
           avatar: user.image,
+          provider: account?.provider,
         });
       } else if (account?.provider === "github" && !dbUser.avatar) {
         dbUser.avatar = user.image;
+        dbUser.provider = account?.provider;
         await dbUser.save();
       }
 
