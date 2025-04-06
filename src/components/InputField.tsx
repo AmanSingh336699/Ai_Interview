@@ -1,18 +1,18 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { UseFormRegister, FieldValues } from 'react-hook-form';
+import { UseFormRegister, FieldError, Path } from 'react-hook-form';
 
-interface InputFieldProps {
+interface InputFieldProps<T extends Record<string, any>> {
   label: string;
-  name: string;
-  register: UseFormRegister<FieldValues>;
-  error?: any;
+  name: Path<T>;
+  register: UseFormRegister<T>;
+  error?: FieldError;
   type?: string;
   placeholder?: string;
   icon?: React.ReactNode;
 }
 
-const InputField: React.FC<InputFieldProps> = ({
+const InputField = <T extends Record<string, any>>({
   label,
   name,
   register,
@@ -20,7 +20,7 @@ const InputField: React.FC<InputFieldProps> = ({
   type = 'text',
   placeholder,
   icon,
-}) => {
+}: InputFieldProps<T>) => {
   const inputClass = `mt-2 p-3 bg-gray-700 rounded-lg text-gray-200 focus:border-sky-400 focus:outline-none transition duration-200 ease-in-out w-full ${
     icon ? 'pl-10' : ''
   }`;
