@@ -7,7 +7,8 @@ import api from "@/lib/api";
 import toast from "react-hot-toast";
 import { ProfileFormData, updateSchema } from "@/utils/Schema";
 import { useRouter } from "next/navigation";
-import Loader from "@/components/ui/Loader";
+import { FaLock, FaUser, FaEnvelope } from "react-icons/fa";
+import InputField from "@/components/InputField";
 
 export default function ProfileForm() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -31,7 +32,6 @@ export default function ProfileForm() {
   const password = watch("password");
 
   const onSubmit = async (data: ProfileFormData) => {
-    console.log("data", data);
     try {
       const payload = {
         ...(data.username && { username: data.username }),
@@ -86,105 +86,49 @@ export default function ProfileForm() {
         </motion.h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
-        {errors.root && (
-          <motion.p
-            className="text-red-400 text-xs sm:text-sm mb-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            {errors.root.message}
-          </motion.p>
-        )}
-          <motion.div variants={childVariants}>
-            <label htmlFor="username" className="block text-sm sm:text-base font-medium text-white mb-1">
-              Username (optional)
-            </label>
-            <input
-              id="username"
-              type="text"
-              {...register("username")}
-              className="w-full px-4 py-2 sm:py-3 rounded-lg bg-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-              placeholder="Enter new username"
-            />
-            {errors.username && (
-              <motion.p
-                className="text-red-400 text-xs sm:text-sm mt-1"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-              >
-                {errors.username.message}
-              </motion.p>
-            )}
-          </motion.div>
-          <motion.div variants={childVariants}>
-            <label htmlFor="email" className="block text-sm sm:text-base font-medium text-white mb-1">
-              Email (optional)
-            </label>
-            <input
-              id="email"
-              type="email"
-              {...register("email")}
-              className="w-full px-4 py-2 sm:py-3 rounded-lg bg-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-              placeholder="Enter new email"
-            />
-            {errors.email && (
-              <motion.p
-                className="text-red-400 text-xs sm:text-sm mt-1"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-              >
-                {errors.email.message}
-              </motion.p>
-            )}
-          </motion.div>
-          <motion.div variants={childVariants}>
-            <label htmlFor="password" className="block text-sm sm:text-base font-medium text-white mb-1">
-              Password (optional)
-            </label>
-            <input
-              id="password"
-              type="password"
-              {...register("password")}
-              className="w-full px-4 py-2 sm:py-3 rounded-lg bg-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-              placeholder="Enter new password"
-            />
-            {errors.password && (
-              <motion.p
-                className="text-red-400 text-xs sm:text-sm mt-1"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-              >
-                {errors.password.message}
-              </motion.p>
-            )}
-          </motion.div>
+          <InputField
+            label="Username (optional)"
+            name="username"
+            register={register}
+            error={errors.username}
+            placeholder="Enter new username"
+            icon={<FaUser className="text-gray-400" />}
+          />
+          <InputField
+            label="Email (optional)"
+            name="email"
+            register={register}
+            error={errors.email}
+            type="email"
+            placeholder="Enter new email"
+            icon={<FaEnvelope className="text-gray-400" />}
+          />
+          <InputField
+            label="Password (optional)"
+            name="password"
+            register={register}
+            error={errors.password}
+            type="password"
+            placeholder="Enter new password"
+            icon={<FaLock className="text-gray-400" />}
+          />
           <AnimatePresence>
             {password && (
-              <motion.div variants={childVariants} initial="hidden" animate="visible" exit="hidden">
-                <label htmlFor="confirmPassword" className="block text-sm sm:text-base font-medium text-white mb-1">
-                  Confirm Password
-                </label>
-                <input
-                  id="confirmPassword"
+              <motion.div
+                variants={childVariants}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+              >
+                <InputField
+                  label="Confirm Password"
+                  name="confirmPassword"
+                  register={register}
+                  error={errors.confirmPassword}
                   type="password"
-                  {...register("confirmPassword")}
-                  className="w-full px-4 py-2 sm:py-3 rounded-lg bg-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                   placeholder="Confirm password"
+                  icon={<FaLock className="text-gray-400" />}
                 />
-                {errors.confirmPassword && (
-                  <motion.p
-                    className="text-red-400 text-xs sm:text-sm mt-1"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {errors.confirmPassword.message}
-                  </motion.p>
-                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -197,7 +141,7 @@ export default function ProfileForm() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              {isSubmitting ? `Updating ${<Loader size={34} button={true} />}` : "Update Account"}
+              {isSubmitting ? `Updating....` : "Update Account"}
             </motion.button>
             <motion.button
               type="button"

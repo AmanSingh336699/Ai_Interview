@@ -1,10 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { UseFormRegister, FieldValues } from 'react-hook-form';
 
 interface InputFieldProps {
   label: string;
   name: string;
-  register: any;
+  register: UseFormRegister<FieldValues>;
   error?: any;
   type?: string;
   placeholder?: string;

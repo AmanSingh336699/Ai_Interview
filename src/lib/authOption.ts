@@ -80,6 +80,8 @@ export const authOptions: NextAuthOptions = {
         const dbUser = await User.findById(token.id);
         if (dbUser) {
           session.user.profileImage = dbUser.avatar;
+          session.user.name = dbUser.username
+          session.user.email = dbUser.email
         }
       }
       return session;

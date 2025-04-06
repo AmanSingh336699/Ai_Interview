@@ -6,6 +6,7 @@ import { cloudinary } from "@/utils/config";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { ProfileFormData, updateSchema } from "@/utils/Schema";
+import bcrypt from "bcryptjs";
 
 export async function GET(){
     await connectDb()
@@ -127,7 +128,7 @@ export async function PATCH(request: NextRequest) {
     const updates: { username?: string; email?: string; password?: string } = {};
     if (username) updates.username = username;
     if (email && user.provider === 'credentials') updates.email = email;
-    if (password && user.provider === 'credentials') updates.password = password
+    if (password && user.provider === 'credentials') updates.password = await bcrypt.hash(password, 10);
   
     try {
       await User.findByIdAndUpdate(userId, updates);
@@ -150,6 +151,7 @@ export async function DELETE(){
     const userId = session?.user.id
     try {
         await User.findByIdAndDelete(userId)
+        return NextResponse.json({ message: "Account deleted successfully" }, { status: 200 })
     } catch (error) {
         return NextResponse.json({ error: "Server error" }, { status: 500 })
     }
