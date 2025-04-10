@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback, useRef, JSX } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { pusherClient } from "@/utils/config";
 import api from "@/lib/api";
 import { useSession } from "next-auth/react";
@@ -36,7 +36,6 @@ interface Member {
 export default function BattleWrapper({ battleCode, children }: BattleWrapperProps) {
   const { data: session } = useSession();
   const userId = session?.user?.id;
-  const isMounted = useRef(false);
 
   const [question, setQuestion] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -64,20 +63,16 @@ export default function BattleWrapper({ battleCode, children }: BattleWrapperPro
       setGameState((prev) => ({ ...prev, hasAnswered: answerRes?.data?.hasAnswered || false }));
       setPlayers(questionRes.data.players.map((p: Player) => ({ ...p, isTyping: false })));
     } catch (error) {
-      console.error("Error fetching data:", error);
       setGameState((prev) => ({ ...prev, hasAnswered: false }));
     }
-  }, [battleCode, userId, currentIndex]);
+  }, [battleCode, userId,  currentIndex]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
   useEffect(() => {
-    if (!battleCode || !userId || !isMounted.current) {
-      isMounted.current = true;
-      return;
-    }
+    if (!battleCode || !userId) return;
 
     const channel = pusherClient.subscribe(`presence-battle-${battleCode}`);
 
@@ -95,42 +90,36 @@ export default function BattleWrapper({ battleCode, children }: BattleWrapperPro
         })
       );
       const userName = initialPlayers.find((p) => p.userId === userId)?.name || "You";
-      setTimeout(() => {
-        toast.success(`${userName} have joined the battle!`, {
-          duration: 3000,
-          position: "top-center",
-          icon: <FaUser className="h-6 w-6 text-sky-500" />,
-          style: { background: "#4caf50", color: "#fff" },
-        });
-      }, 0);
+      toast.success(`${userName} have joined the battle!`, {
+        duration: 3000,
+        position: "top-center",
+        icon: <FaUser className="h-6 w-6 text-sky-500" />,
+        style: { background: "#4caf50", color: "#fff" },
+      });
     };
 
     const handleMemberAdded = (member: Member) => {
       setPlayers((prev) => {
         if (prev.some((p) => p.userId === member.id)) return prev;
         const newPlayer = { userId: member.id, name: member.info?.name || "Unknown", isTyping: false };
-        setTimeout(() => {
-          toast.success(`${newPlayer.name} has joined the battle!`, {
-            duration: 3000,
-            position: "top-center",
-            icon: <FaUser className="h-6 w-6 text-sky-500" />,
-            style: { background: "#4caf50", color: "#fff" },
-          });
-        }, 0);
+        toast.success(`${newPlayer.name} has joined the battle!`, {
+          duration: 3000,
+          position: "top-center",
+          icon: <FaUser className="h-6 w-6 text-sky-500" />,
+          style: { background: "#4caf50", color: "#fff" },
+        });
         return [...prev, newPlayer];
       });
     };
 
     const handleMemberRemoved = (member: Member) => {
       setPlayers((prev) => prev.filter((p) => p.userId !== member.id));
-      setTimeout(() => {
-        toast(`${member.info?.name || "Unknown"} has left the battle!`, {
-          duration: 3000,
-          position: "top-center",
-          icon: "👋",
-          style: { background: "#ff4d4f", color: "#fff" },
-        });
-      }, 0);
+      toast(`${member.info?.name || "Unknown"} has left the battle!`, {
+        duration: 3000,
+        position: "top-center",
+        icon: "👋",
+        style: { background: "#ff4d4f", color: "#fff" },
+      });
     };
 
     const handleScoreUpdated = (data: { players: Player[] }) => {
@@ -153,9 +142,7 @@ export default function BattleWrapper({ battleCode, children }: BattleWrapperPro
     const handleBattleCompleted = () => setStatus("completed");
 
     const handleTypingEvent = (data: { userId: string; typing: boolean }) => {
-      if (data.userId === userId) {
-        return;
-      }
+      if (data.userId === userId) return;
       setPlayers((prev) =>
         prev.map((p) => (p.userId === data.userId ? { ...p, isTyping: data.typing } : p))
       );
@@ -173,7 +160,7 @@ export default function BattleWrapper({ battleCode, children }: BattleWrapperPro
       channel.unbind_all();
       pusherClient.unsubscribe(`presence-battle-${battleCode}`);
     };
-  }, [battleCode, userId]);
+  }, [battleCode, userId, players]);
 
   const playerList = useMemo(() => players, [players]);
 
@@ -185,6 +172,5 @@ export default function BattleWrapper({ battleCode, children }: BattleWrapperPro
     gameState,
     setGameState,
   });
-}
-
+} 
 
