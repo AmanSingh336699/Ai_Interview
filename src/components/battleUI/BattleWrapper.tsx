@@ -160,7 +160,7 @@ export default function BattleWrapper({ battleCode, children }: BattleWrapperPro
       channel.unbind_all();
       pusherClient.unsubscribe(`presence-battle-${battleCode}`);
     };
-  }, [battleCode, userId, players]);
+  }, [battleCode, userId]);
 
   const playerList = useMemo(() => players, [players]);
 

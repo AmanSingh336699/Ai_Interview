@@ -42,7 +42,6 @@ export default function Home() {
   return (
     <div className="relative h-screen w-full overflow-hidden">
       <div id="bg" className="absolute inset-0 bg-gradient-to-r from-sky-600 to-purple-600 transition-all duration-1000" />
-
       <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-6">
         <motion.h1
           className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight tracking-wide mb-4"
