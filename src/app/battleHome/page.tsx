@@ -9,7 +9,6 @@ import JoinBattleForm from "@/components/battleUI/JoinBattleForm";
 
 export default function BattleHome() {
   const [activeTab, setActiveTab] = useState<"create" | "join">("create");
-
   return (
     <BattleLayout>
       <header className="relative z-10 text-center mb-8">

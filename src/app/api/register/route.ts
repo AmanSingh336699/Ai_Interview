@@ -18,7 +18,6 @@ export async function POST(req: Request){
             username,
             email,
             password,
-            provider: 'credentials'
         })
     
         return NextResponse.json({ message: "User registered", user }, { status: 201 })

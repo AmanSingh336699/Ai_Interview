@@ -18,7 +18,6 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("All fields are required");
         }
-
         try {
           const user = await User.findOne({ email: credentials.email });
           if (!user) {
@@ -28,7 +27,6 @@ export const authOptions: NextAuthOptions = {
           if (!isValidPassword) {
             throw new Error("Invalid password");
           }
-
           return {
             name: user.username,
             id: user._id as string,
@@ -46,28 +44,35 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      await connectDb();
-
-      let dbUser = await User.findOne({ email: user.email });
-
-      if (!dbUser) {
-        dbUser = await User.create({
-          email: user.email,
-          username: user.name || profile?.login,
-          avatar: user.image,
-          provider: account?.provider,
-        });
-      } else if (account?.provider === "github" && !dbUser.avatar) {
-        dbUser.avatar = user.image;
-        dbUser.provider = account?.provider;
-        await dbUser.save();
+      try {
+        await connectDb();
+        let dbUser = await User.findOne({ email: user.email || profile?.email });
+        if (!dbUser) {
+          dbUser = await User.create({
+            email: user.email || profile?.email,
+            username: user.name || profile?.login,
+            avatar: user.image,
+            provider: account?.provider,
+            password: account?.provider === "github" && undefined,
+          });
+        } else if (account?.provider === "github" && !dbUser.avatar) {
+          dbUser.avatar = user.image;
+          dbUser.provider = account?.provider;
+          await dbUser.save();
+        }
+        if (account) {
+          account.userId = dbUser._id.toString();
+        }
+        user.id = dbUser._id.toString();
+        return true;
+      } catch (error) {
+        return false;
       }
-
-      user.id = dbUser._id.toString();
-      return true;
     },
-    async jwt({ token, user }) {
-      if (user) {
+    async jwt({ token, user, account }) {
+      if (account && account.userId) {
+        token.id = account.userId;
+      } else if (user && user.id) {
         token.id = user.id;
       }
       return token;
@@ -75,13 +80,12 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-
         await connectDb();
         const dbUser = await User.findById(token.id);
         if (dbUser) {
           session.user.profileImage = dbUser.avatar;
-          session.user.name = dbUser.username
-          session.user.email = dbUser.email
+          session.user.name = dbUser.username;
+          session.user.email = dbUser.email;
         }
       }
       return session;
