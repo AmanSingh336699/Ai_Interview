@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { FaTrash, FaArrowLeft, FaArrowRight, FaRocket, FaClock, FaQuestion, FaTrophy, FaMedal } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { useDebounce } from "@/hooks/useDebounce";
+import  useDebounce from "@/hooks/useDebounce"
 import { useSession } from "next-auth/react";
 import api from "@/lib/api";
 import { withAuth } from "@/components/withAuth";

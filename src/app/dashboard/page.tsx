@@ -23,7 +23,7 @@ function Dashboard() {
     const [dashboardData, setDashboardData] = useState<{
         totalInterviews: number;
         provider: string;
-        highestScoreInterview: { createdAt: string; role: string; _id: string; techStack: string; totalScore: number };
+        highestScoreInterview: { createdAt: string; role: string; _id: string; techStack: string; totalScore: number; status: string };
     } | null>(null);
     const [status, setStatus] = useState<"loading" | "error" | "success">("loading");
     const [profileImage, setProfileImage] = useState<string | null>(null);
@@ -79,7 +79,9 @@ function Dashboard() {
             setIsUploading(false);
         }
     };
-
+    const Skeleton = ({ className }: { className: string }) => (
+        <div className={`animate-pulse bg-gray-500 ${className}`}></div>
+    );
     const AnimatedTitle = useMemo(
         () => (
             <AnimatePresence mode="wait">
@@ -146,8 +148,8 @@ function Dashboard() {
                             <IPInfoModal />
                             {dashboardData?.provider === "credentials" && (
                                 <button
-                                onClick={() => router.push("/dashboard/update")}
-                                className="px-6 py-3 w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-green-500 text-white font-semibold rounded-lg shadow-lg hover:scale-105 transition-all disabled:opacity-50"
+                                    onClick={() => router.push("/dashboard/update")}
+                                    className="px-6 py-3 w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-green-500 text-white font-semibold rounded-lg shadow-lg hover:scale-105 transition-all disabled:opacity-50"
                                 >
                                     Update Account
                                 </button>
@@ -163,14 +165,22 @@ function Dashboard() {
                     transition={{ duration: 0.5 }}
                 >
                     {status === "loading" ? (
-                        <motion.div
-                            className="w-full bg-gray-500 h-2 rounded-full overflow-hidden"
-                            initial={{ width: "0%" }}
-                            animate={{ width: "100%" }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                        >
-                            <div className="h-full bg-sky-500 animate-pulse"></div>
-                        </motion.div>
+                        <>
+                            <div className="flex items-center bg-gray-900 p-4 rounded-lg">
+                                <Skeleton className="w-10 h-10 mr-4 rounded-full" />
+                                <Skeleton className="h-6 w-40 rounded-md" />
+                            </div>
+                            <div className="bg-gray-900 p-4 sm:p-6 rounded-lg shadow-md flex flex-col space-y-2 mt-4">
+                                <div className="flex items-center justify-between">
+                                    <Skeleton className="h-6 w-32 rounded-md" />
+                                    <Skeleton className="h-4 w-20 rounded-md" />
+                                </div>
+                                <Skeleton className="h-4 w-48 rounded-md" />
+                                <Skeleton className="h-4 w-48 rounded-md" />
+                                <Skeleton className="h-4 w-48 rounded-md" />
+                                <Skeleton className="h-10 w-full rounded-md mt-4" />
+                            </div>
+                        </>
                     ) : status === "error" ? (
                         <p className="text-center text-red-500">Failed to fetch dashboard data</p>
                     ) : (
@@ -201,18 +211,29 @@ function Dashboard() {
                                     <p className="text-sm sm:text-base">
                                         <strong>Score:</strong> {dashboardData.highestScoreInterview.totalScore}
                                     </p>
-                                    <Link href={`/summery/${dashboardData.highestScoreInterview?._id}`} className="rounded-md">
-                                        <motion.div
-                                            whileTap={{ scale: 0.95 }}
-                                            whileHover={{ scale: 1.05 }}
-                                            className="mt-4 px-4 sm:px-6 py-2 sm:py-3 rounded-md bg-sky-500 transition-all cursor-pointer hover:bg-sky-700 text-center text-sm sm:text-base"
-                                        >
-                                            View Summary
-                                        </motion.div>
-                                    </Link>
+                                    {dashboardData.highestScoreInterview.status === "ongoing" ? 
+                                        <Link href={`/interview/${dashboardData.highestScoreInterview?._id}`} className="rounded-md">
+                                            <motion.div
+                                                whileTap={{ scale: 0.95 }}
+                                                whileHover={{ scale: 1.05 }}
+                                                className="mt-4 px-4 sm:px-6 py-2 sm:py-3 rounded-md bg-sky-500 transition-all cursor-pointer hover:bg-sky-700 text-center text-sm sm:text-base"
+                                            >
+                                                Ongoing
+                                            </motion.div>
+                                        </Link> : 
+                                        <Link href={`/summery/${dashboardData.highestScoreInterview?._id}`} className="rounded-md">
+                                            <motion.div
+                                                whileTap={{ scale: 0.95 }}
+                                                whileHover={{ scale: 1.05 }}
+                                                className="mt-4 px-4 sm:px-6 py-2 sm:py-3 rounded-md bg-sky-500 transition-all cursor-pointer hover:bg-sky-700 text-center text-sm sm:text-base"
+                                            >
+                                                View Summary
+                                            </motion.div>
+                                        </Link>
+                                    }
                                 </div>
                             ) : (
-                                <p className="text-center text-gray-400">No interviews found</p>
+                                <p className="text-center text-gray-400 mt-10">No interviews found</p>
                             )}
                         </>
                     )}
@@ -233,7 +254,7 @@ function Dashboard() {
                     >
                         <FaPlay className="mr-2 sm:mr-3" />
                         <h2 className="text-xl sm:text-2xl font-semibold">Create New Interview</h2>
-                    </motion.div>
+                     </motion.div>
                 </Link>
 
                 <motion.button
@@ -250,7 +271,7 @@ function Dashboard() {
                     onClick={() => router.push("/battleHome")}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="flex items-center justify-center bg-gray-800 px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-gray-700 transition-all hover:shadow-lg w-full lg:w-1/2 text-md sm:text-lg"
+                    className="flex items-center justify-center bg-rose-500 px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-rose-700 transition-all hover:shadow-lg w-full lg:w-1/2 text-md sm:text-xl"
                 >
                     ⚔️ Battle with friends
                 </motion.button>

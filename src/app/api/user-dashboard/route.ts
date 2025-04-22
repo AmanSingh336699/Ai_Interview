@@ -31,7 +31,7 @@ export async function GET(){
             { $addFields: { totalScore: { $sum: "$response.score" } } },
             { $sort: { totalScore: -1 } },
             { $limit: 1 },
-            { $project: { _id: 1, role: 1, experience: 1, techStack: 1, totalScore: 1, createdAt: 1} }
+            { $project: { _id: 1, role: 1, experience: 1, techStack: 1, totalScore: 1, createdAt: 1, status: 1 } }
         ])
         return NextResponse.json({ totalInterviews, highestScoreInterview: highesScoreInterview[0] || null, provider: provider }, { status: 200 })
     } catch (_error) {
@@ -150,7 +150,7 @@ export async function DELETE(){
     }
     const userId = session?.user.id
     try {
-        await User.findByIdAndDelete(userId)
+        await User.findOneAndDelete({_id: userId})
         return NextResponse.json({ message: "Account deleted successfully" }, { status: 200 })
     } catch (error) {
         return NextResponse.json({ error: "Server error" }, { status: 500 })

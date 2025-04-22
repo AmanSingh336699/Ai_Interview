@@ -1,5 +1,6 @@
 import { Document, models, model, Schema } from "mongoose"
 import bcrypt from "bcryptjs"
+import Interview from "./Interview";
 
 export interface IUser extends Document {
     username: string;
@@ -55,6 +56,11 @@ userSchema.pre("save", async function(next){
     next()
 })
 
+userSchema.pre('findOneAndDelete', async function(next){
+    const user = await this.model.findOne(this.getQuery())
+    await Interview.deleteMany({userId: user._id})
+    next()
+})
 const User = models.User || model<IUser>("User", userSchema)
 
 export default User;
